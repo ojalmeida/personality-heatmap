@@ -1,18 +1,18 @@
-package main
+package phase1
 
 import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/ojalmeida/personality-heatmap/phase1/data"
-	"github.com/ojalmeida/personality-heatmap/phase1/geo"
-	"github.com/ojalmeida/personality-heatmap/phase1/models"
-	"github.com/ojalmeida/personality-heatmap/phase1/proxy"
 	"html"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
+	"personality-heatmap/phase1/data"
+	"personality-heatmap/phase1/geo"
+	"personality-heatmap/phase1/models"
+	"personality-heatmap/phase1/proxy"
 	"strconv"
 	"strings"
 	"time"
