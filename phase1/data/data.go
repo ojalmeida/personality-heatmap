@@ -1,9 +1,9 @@
 package data
 
 import (
+	"github.com/ojalmeida/personality-heatmap/phase1/models"
 	"gopkg.in/yaml.v2"
 	"os"
-	"phase1/models"
 )
 
 var Data = &models.PhaseData{
