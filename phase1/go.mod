@@ -1,4 +1,4 @@
-module phase1
+module github.com/ojalmeida/personality-heatmap/phase1
 
 go 1.18
 
