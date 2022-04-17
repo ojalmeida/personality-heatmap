@@ -8,7 +8,7 @@ import (
 )
 
 func setCustomCertificate() error {
-	cert, err := tls.LoadX509KeyPair("cert/server.crt", "cert/server.key")
+	cert, err := tls.LoadX509KeyPair("preparation/cert/server.crt", "preparation/cert/server.key")
 	if err != nil {
 		return err
 	}

@@ -8,8 +8,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"personality-heatmap/phase1/data"
-	"personality-heatmap/phase1/models"
+	"personality-heatmap/data"
+	"personality-heatmap/models"
 	"strings"
 	"time"
 )
@@ -19,13 +19,9 @@ type Config struct {
 	FakeGPS  models.FakeLocation
 }
 
-var ProxyConfig Config
-
 var server *http.Server
-var proxy = goproxy.NewProxyHttpServer()
 
 func init() {
-
 	file, err := os.OpenFile("/tmp/proxy.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 660)
 
 	if err != nil {
@@ -37,9 +33,15 @@ func init() {
 	log.SetOutput(file)
 
 	err = setCustomCertificate()
+}
 
-	if err != nil {
-		panic(err.Error())
+func Start(config Config) {
+
+	proxy := goproxy.NewProxyHttpServer()
+
+	server = &http.Server{
+		Addr:    ":8888",
+		Handler: proxy,
 	}
 
 	proxy.Verbose = false
@@ -59,7 +61,7 @@ func init() {
 
 			}
 
-			modifiedResponseBody, err := json.Marshal(ProxyConfig.FakeGPS)
+			modifiedResponseBody, err := json.Marshal(config.FakeGPS)
 
 			resp.Body = ioutil.NopCloser(strings.NewReader(string(modifiedResponseBody)))
 
@@ -85,14 +87,14 @@ func init() {
 
 			if xAuthToken != "" {
 
-				for _, node := range data.Data.Nodes {
+				for n, node := range data.Data.Nodes {
 
-					if node.Name == ProxyConfig.NodeName {
+					if node.Name == config.NodeName {
 
 						if node.APIToken == "" {
 
 							log.Printf("X-Auth-Token: %s stored for node %s\n", xAuthToken, node.Name)
-							node.APIToken = xAuthToken
+							data.Data.Nodes[n].APIToken = xAuthToken
 
 							break
 						}
@@ -107,15 +109,6 @@ func init() {
 		return resp
 
 	})
-
-}
-
-func Start() {
-
-	server = &http.Server{
-		Addr:    ":8888",
-		Handler: proxy,
-	}
 
 	log.Println("Starting proxy")
 
