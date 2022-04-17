@@ -1,6 +1,8 @@
 package geo
 
-import "personality-heatmap/phase1/models"
+import (
+	"personality-heatmap/models"
+)
 
 func GetNodesCoordinates(targetCityCoordinates models.Coordinate) [3]models.Coordinate {
 

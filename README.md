@@ -6,7 +6,6 @@ A tool to build a geographic heatmap of personalities in a region making use of 
 
 ![](architecture.png "Architecture")
 
-
 ### Phase 1
 
 ![](phase1.png "Phase 1")

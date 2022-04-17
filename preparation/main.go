@@ -1,4 +1,4 @@
-package phase1
+package preparation
 
 import (
 	"bufio"
@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"personality-heatmap/phase1/data"
-	"personality-heatmap/phase1/geo"
-	"personality-heatmap/phase1/models"
-	"personality-heatmap/phase1/proxy"
+	"personality-heatmap/data"
+	"personality-heatmap/models"
+	"personality-heatmap/preparation/geo"
+	"personality-heatmap/preparation/proxy"
 	"strconv"
 	"strings"
 	"time"
@@ -20,7 +20,7 @@ import (
 
 func cls() {
 
-	fmt.Print("\033[2J")
+	fmt.Print("\033[H\033[2J")
 }
 
 func askForChoose(prompt string, onPositive, onNegative func()) {
@@ -28,16 +28,16 @@ func askForChoose(prompt string, onPositive, onNegative func()) {
 	var choose string
 	for {
 
-		fmt.Printf("%s (y/N) ", prompt)
+		fmt.Printf("%s (Y/n) ", prompt)
 		_, _ = fmt.Scanln(&choose)
 
 		switch strings.ToLower(choose) {
 
-		case "y", "yes":
+		case "y", "yes", "", "\n":
 
 			onPositive()
 
-		case "n", "no", "", "\n":
+		case "n", "no":
 
 			onNegative()
 
@@ -51,9 +51,9 @@ func askForChoose(prompt string, onPositive, onNegative func()) {
 
 }
 
-func main() {
+func Start() {
 
-	fmt.Println("-- Welcome to phase1 --")
+	fmt.Println("-- Welcome to phase 1 --")
 	fmt.Println()
 	fmt.Println("# Phase needed resources: 3 tinder accounts and a city name")
 	fmt.Println("# Phase side-effects: 3 tinder accounts with fake location implemented")
@@ -146,7 +146,7 @@ func setCity() {
 
 				data.Data.City.Coordinates.Lat, _ = strconv.ParseFloat(details.Lat, 64)
 				data.Data.City.Coordinates.Lng, _ = strconv.ParseFloat(details.Lon, 64)
-				doTrackAccounts()
+				trackAccountInstructions()
 			},
 			func() {
 
@@ -171,7 +171,7 @@ func trackAccountInstructions() {
 	fmt.Println("2. Accept the location tracking, asked on top of the screen")
 	fmt.Println("3. Close window")
 	fmt.Println()
-	askForChoose("Can we start ?", trackAccountInstructions, func() { os.Exit(1) })
+	askForChoose("Can we start ?", doTrackAccounts, func() { os.Exit(1) })
 }
 
 func doTrackAccounts() {
@@ -181,7 +181,7 @@ func doTrackAccounts() {
 	cls()
 	fmt.Println("Right, do the procedures for the 1st account")
 
-	data.Data.Nodes[0] = &models.Node{
+	data.Data.Nodes[0] = models.Node{
 		Name: data.Data.City.Name + "-1",
 		Location: models.FakeLocation{
 
@@ -201,7 +201,7 @@ func doTrackAccounts() {
 	cls()
 	fmt.Println("Now, for the 2nd account")
 
-	data.Data.Nodes[1] = &models.Node{
+	data.Data.Nodes[1] = models.Node{
 		Name: data.Data.City.Name + "-2",
 		Location: models.FakeLocation{
 
@@ -221,7 +221,7 @@ func doTrackAccounts() {
 	cls()
 	fmt.Println("And finally, for the 3rd account")
 
-	data.Data.Nodes[2] = &models.Node{
+	data.Data.Nodes[2] = models.Node{
 		Name: data.Data.City.Name + "-3",
 		Location: models.FakeLocation{
 
@@ -243,17 +243,15 @@ func doTrackAccounts() {
 
 	saveData()
 
-	fmt.Println("Seem like we are done here, see ya!")
+	fmt.Println("\nSeem like we are done here, see ya!")
 
 	os.Exit(0)
 
 }
 
-func track(proxyConfig proxy.Config) {
+func track(config proxy.Config) {
 
-	proxy.ProxyConfig = proxyConfig
-
-	proxy.Start()
+	proxy.Start(config)
 
 	cmd := exec.Command("firefox", "--private", "https://tinder.com")
 	cmd.Env = append(cmd.Env, "https_proxy=http://localhost:8888", "DISPLAY=:0")
@@ -278,7 +276,7 @@ func saveData() {
 
 	var path string
 
-	fmt.Print("Type the path that you want that I save this stuff: ")
+	fmt.Print("Type the path that you want that I save this stuff (e.g /tmp): ")
 	_, _ = fmt.Scanln(&path)
 
 	path = strings.TrimRight(path, "/") + "/out.yaml"
